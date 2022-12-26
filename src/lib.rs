@@ -1,26 +1,35 @@
 use std::error::Error;
+use std::env;
 use std::fs;
 
 
 pub struct Config {
     pub query: String,
-    pub file_path: String
+    pub file_path: String,
+    pub ignore_case: bool
 }
 
 impl Config {
     pub fn build(args: &[String]) -> Result<Config, &'static str>{
-        if args.len() < 3 {return Err("not enough arguments")};
+        if args.len() < 4 {return Err("not enough arguments")};
         let query = args[1].clone();
         let file_path = args[2].clone();
+        let ignore_case = if args[3].clone().to_lowercase() == "true" { true } else { false };
 
-        return Ok(Config {query, file_path});
+        return Ok(Config {query, file_path, ignore_case});
     }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
     let contents = fs::read_to_string(config.file_path)?;
 
-    for line in search(&config.query, &contents) {
+    let results = if config.ignore_case {
+        search_case_insencitive(&config.query, &contents)
+    } else {
+        search(&config.query, &contents)
+    };
+
+    for line in results {
         println!("{}", line);
     }
     
@@ -38,7 +47,7 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     results
 }
 
-pub fn search_case_insecitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+pub fn search_case_insencitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let query = query.to_lowercase();
     let mut results = Vec::new();
 
