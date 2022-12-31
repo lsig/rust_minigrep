@@ -22,7 +22,7 @@ impl Config {
         };
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
-        return Ok(Config {query, file_path, ignore_case});
+        Ok(Config {query, file_path, ignore_case})
     }
 }
 
@@ -39,7 +39,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
         println!("{}", line);
     }
     
-    return Ok(());
+    Ok(())
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
